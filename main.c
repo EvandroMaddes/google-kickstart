@@ -8,10 +8,13 @@ typedef enum {
     false, true
 } bool;
 
+//name of each member
 typedef char name[40];
-typedef name *splitFrom; // puntatore  a nome di un membro
 
+// puntatore  a nome di un membro
+typedef name *splitFrom; 
 
+//each member has a name, a list of "enemy" members and the size of this last list 
 typedef struct member {
     name memberID;
     splitFrom *split;//array di puntatore a nome di membri
@@ -26,7 +29,7 @@ char addMember(char fromUsr) {
 void addsplit(struct member currentMember) {
 
 }
-
+//for each test this function adds the members and thier relations to the data structure
 struct member *addPairs(int numberPairs) {
     char line[100];
     char memberOne[40], memberTwo[40];
