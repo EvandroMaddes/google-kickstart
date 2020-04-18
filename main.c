@@ -80,7 +80,7 @@ bool isBipartite(struct member *members, int size) {
         for (int i = 0; i < curMember->splitSize; i++) {
             struct member *curChildMember = ((struct member *)curMember->split[i]);
             //se stesso colore del padre allora i grafo non può essere bipartito
-            //todo esaminare caso di loop a->b->a->b ...
+            //todo esaminare caso di loop a->b->a->b ... usare il colore bianco: WHITE
             if (curMember->color == curChildMember->color) {
                 return false;
             } else {
