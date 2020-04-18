@@ -25,17 +25,21 @@ typedef struct member {
     int splitSize;
     type color;
 };
-/*** FUNCTION ***/
-splitFrom *push(splitFrom *heap,struct member *member, int size){
-    for (int i = size; i > 0; --i) {
-        heap[i] = heap[i-1];
-    }
-    heap[0] = member;
+/*+++++++++++++++++++++++++++++++++++ FUNCTION +++++++++++++++++++++++++++++++++++++++++++*/
+/**
+ * Push into the heap policy FIFO
+ */
+splitFrom *push(splitFrom *heap, struct member *member, int size) {
+    heap[size] = member;
     return heap;
 }
 
-splitFrom *pop(splitFrom *heap,struct member *member, int size) {
-    //todo
+/**
+ * Pop from the heap policy FIFO
+ */
+splitFrom *pop(splitFrom *heap, int size) {
+    heap[size] = NULL;
+    return heap[size];
 }
 
 //Following is a simple algorithm to find out whether a given graph is Birpartite or not using Breadth First Search (BFS).
@@ -44,36 +48,68 @@ splitFrom *pop(splitFrom *heap,struct member *member, int size) {
 //3. Color all neighbor’s neighbor with RED color (putting into set U).
 //4. This way, assign color to all vertices such that it satisfies all the constraints of m way coloring problem where m = 2.
 //5. While assigning colors, if we find a neighbor which is colored with same color as current vertex, then the graph cannot be colored with 2 vertices (or graph is not Bipartite)
-bool isBipartite(struct member *members, int size) {
-    splitFrom *heap = malloc(dim *dim *sizeof(splitFrom));
-    struct member curMember;
-    //todo push primo elemento
-    //todo while heap vuoto
-    //todo pop
-    //todo per ogni split del membro corrente
-    //todo controlli su self loop o loop infiniti
-    //todo if stesso colore del padre uscire
-    //todo else assegnare il colore opposto a qeullo del padre
-    //todo      push memmbro
-    //todo fine for
-    //todo fine while
-    //todo return true
+//todo push primo elemento
+//todo while heap vuoto
+//todo pop
+//todo per ogni split del membro corrente
+//todo controlli su self loop o loop infiniti
+//todo if stesso colore del padre uscire
+//todo else assegnare il colore opposto a qeullo del padre
+//todo push memmbro
+//todo fine for
+//todo fine while
+//todo return true
 
-    /***
-    for (int i = 0; i < curMember.splitSize; ++i) {
-        if (curMember.split[i]->color == white) {
-            curMember.split[i]->color = blue;
-        } else if (curMember.split[i]->color == curMember.color) {
-            return false;
+bool isBipartite(struct member *members, int size) {
+    splitFrom *heap = malloc(dim * dim * sizeof(splitFrom));
+    int heapSize = 0;
+    struct member *curMember;
+
+    //push first member
+    members[0].color = red;
+    heap[heapSize] = &members[0];
+    heapSize++;
+    while (heapSize != 0) {
+        printf("ss");
+        printf("%s", ((struct member *)heap[heapSize-1])->memberID);
+        //pop member form the heap
+        curMember =  ((struct member *)heap[heapSize-1]); //todo passare *BENE* il puntatore
+        heapSize--;
+
+
+        for (int i = 0; i < curMember->splitSize; i++) {
+            struct member *curChildMember = ((struct member *)curMember->split[i]);
+            //se stesso colore del padre allora i grafo non può essere bipartito
+            //todo esaminare caso di loop a->b->a->b ...
+            if (curMember->color == curChildMember->color) {
+                return false;
+            } else {
+                switch (curMember->color) {
+                    case blue:
+                        curChildMember->color = red;
+                        break;
+                    case red:
+                        curChildMember->color = blue;
+                        break;
+                }
+
+            }
+
+            //push del membro corrente
+            heap[heapSize] = curChildMember;
+            heapSize++;
+
         }
 
-
     }
-     ***/
+    return true;
+
 }
 
-//for each test this function adds the members and thier relations to the data structure
-struct member *addPairs(int numberPairs) {
+/**
+ * For each test this function adds the members and their relations to the data structure
+ */
+bool addPairs(int numberPairs) {
     char line[100];
     char memberOne[40], memberTwo[40];
     bool insertOne, insertTwo;
@@ -157,18 +193,28 @@ struct member *addPairs(int numberPairs) {
         }
     }
     //todo isBipartite() passargli current pos che contiene il numero di membri
-    return testMembers;
+    bool result = isBipartite(testMembers, currentPos);
+    return result;
 }
 
+void printResult(bool result, int caseNumber) {
+    printf("#Case %d: %s", caseNumber, result ? "yes" : "no");
+}
 
 int main() {
     struct member *currentCaseMembers; //array contenente i membri de test case corrente
-    int numberTest = 0;
+    int pairNumber = 0, testNumber = 0, count = 0;
     char line[100] = "init";
-    while (line != EOF) {
+    fgets(line, 90, stdin); //number of tests
+    sscanf(line, "%d", &testNumber);
+    while (testNumber != count) {
+        count++;
         fgets(line, 90, stdin);
-        sscanf(line, "%d", &numberTest);
-        currentCaseMembers = addPairs(numberTest);
+        sscanf(line, "%d", &pairNumber);
+        bool result = addPairs(pairNumber);
+        printResult(result, count);
+
+        /**
         printf("primo membro: %s; color: %d split from: ", &currentCaseMembers[0].memberID,
                currentCaseMembers[0].color);
         for (int i = 0; i < currentCaseMembers[0].splitSize; ++i) {
@@ -178,6 +224,8 @@ int main() {
         for (int i = 0; i < currentCaseMembers[1].splitSize; ++i) {
             printf("%s color %d\t", currentCaseMembers[1].split[i]->memberID, currentCaseMembers[1].split[i]->color);
         }
+        **/
     }
+
     return 0;
 }
