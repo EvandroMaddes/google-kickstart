@@ -39,11 +39,8 @@ SAMPLE
 Input:
 
 2
-
 1
-
 Dead_Bowie Fake_Thomas_Jefferson    
-1
 3               
 Dead_Bowie Fake_Thomas_Jefferson
 Fake_Thomas_Jefferson Fury_Leika

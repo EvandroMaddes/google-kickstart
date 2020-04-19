@@ -64,44 +64,56 @@ bool isBipartite(struct member *members, int size) {
     splitFrom *heap = malloc(dim * dim * sizeof(splitFrom));
     int heapSize = 0;
     struct member *curMember;
+    bool selfLoop = false;
 
     //push first member
     members[0].color = red;
+    //push primo elemento
     heap[heapSize] = &members[0];
     heapSize++;
-    while (heapSize != 0) {
-        printf("ss");
-        printf("%s", ((struct member *)heap[heapSize-1])->memberID);
+    do {
         //pop member form the heap
-        curMember =  ((struct member *)heap[heapSize-1]); //todo passare *BENE* il puntatore
+        curMember = ((struct member *) heap[heapSize - 1]);
         heapSize--;
 
-
         for (int i = 0; i < curMember->splitSize; i++) {
-            struct member *curChildMember = ((struct member *)curMember->split[i]);
-            //se stesso colore del padre allora i grafo non può essere bipartito
+            struct member *curChildMember = ((struct member *) curMember->split[i]);
+            bool toPush = true;
+            //se stesso colore del padre allora i grafo non puo essere bipartito
             //todo esaminare caso di loop a->b->a->b ... usare il colore bianco: WHITE
+
             if (curMember->color == curChildMember->color) {
+                free(heap);
                 return false;
             } else {
-                switch (curMember->color) {
-                    case blue:
-                        curChildMember->color = red;
-                        break;
-                    case red:
-                        curChildMember->color = blue;
-                        break;
+                if (curChildMember->color == white) {
+                    switch (curMember->color) {
+                        case blue:
+                            curChildMember->color = red;
+                            break;
+                        case red:
+                            curChildMember->color = blue;
+                            break;
+                    }
+
+                } else { // gia stato visitato almeno una volta
+                    toPush = false;
                 }
-
             }
-
-            //push del membro corrente
-            heap[heapSize] = curChildMember;
-            heapSize++;
+            //iNSERIMENTO IN TESTA
+            if (toPush) {
+                for (int j = heapSize; j > 0; j--) {
+                    heap[j] = heap[j - 1];
+                }
+                //push del membro corrente
+                heap[0] = curChildMember;
+                heapSize++;
+            }
 
         }
 
-    }
+    } while (heapSize != 0);
+    free(heap);
     return true;
 
 }
@@ -125,11 +137,11 @@ bool addPairs(int numberPairs) {
         sscanf(line, "%s %s", &memberOne, &memberTwo);
         //Cerco se i membri della riga ccorrente sono gia presenti nell'array
         for (int j = 0; j < currentPos; ++j) {
-            if (strcmp(testMembers[j].memberID, memberOne) == 0) { //Se è gia presente nell'array
+            if (strcmp(testMembers[j].memberID, memberOne) == 0) { //Se gia presente nell'array
                 insertOne = false;
                 posOne = j;
             }
-            if (strcmp(testMembers[j].memberID, memberTwo) == 0) { //Se è gia presente nell'array
+            if (strcmp(testMembers[j].memberID, memberTwo) == 0) { //Se gia presente nell'array
                 insertTwo = false;
                 posTwo = j;
             }
@@ -192,17 +204,16 @@ bool addPairs(int numberPairs) {
             testMembers[posTwo].splitSize++;
         }
     }
-    //todo isBipartite() passargli current pos che contiene il numero di membri
     bool result = isBipartite(testMembers, currentPos);
+    free(testMembers);
     return result;
 }
 
 void printResult(bool result, int caseNumber) {
-    printf("#Case %d: %s", caseNumber, result ? "yes" : "no");
+    printf("Case #%d: %s", caseNumber, result ? "Yes" : "No");
 }
 
 int main() {
-    struct member *currentCaseMembers; //array contenente i membri de test case corrente
     int pairNumber = 0, testNumber = 0, count = 0;
     char line[100] = "init";
     fgets(line, 90, stdin); //number of tests
@@ -213,19 +224,9 @@ int main() {
         sscanf(line, "%d", &pairNumber);
         bool result = addPairs(pairNumber);
         printResult(result, count);
-
-        /**
-        printf("primo membro: %s; color: %d split from: ", &currentCaseMembers[0].memberID,
-               currentCaseMembers[0].color);
-        for (int i = 0; i < currentCaseMembers[0].splitSize; ++i) {
-            printf("%s\t, color: %d", currentCaseMembers[0].split[i]->memberID, currentCaseMembers[0].split[i]->color);
+        if (testNumber != count ){
+            fputs("\n",stdout);
         }
-        printf("\n secondo membro: %s split from ", &currentCaseMembers[1].memberID);
-        for (int i = 0; i < currentCaseMembers[1].splitSize; ++i) {
-            printf("%s color %d\t", currentCaseMembers[1].split[i]->memberID, currentCaseMembers[1].split[i]->color);
-        }
-        **/
     }
-
     return 0;
 }
